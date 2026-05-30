@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diario delle Emozioni</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: linear-gradient(135deg, #eaf3de 0%, #e6f1fb 50%, #eeedfe 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; color: #1f1f1f; }
+    .card { background: #fff; border-radius: 20px; box-shadow: 0 4px 24px rgba(0,0,0,0.13); max-width: 760px; width: 100%; overflow: hidden; }
+    .header-stripe { display: grid; grid-template-columns: repeat(5,1fr); height: 7px; }
+    .hs1{background:#1D9E75}.hs2{background:#378ADD}.hs3{background:#EF9F27}.hs4{background:#E24B4A}.hs5{background:#7F77DD}
+    .header-inner { background: linear-gradient(135deg, #1D9E75 0%, #27c48f 100%); padding: 1.25rem 1.5rem; color: #fff; }
+    .header-inner h1 { margin: 0 0 4px 0; font-size: 1.25rem; }
+    .header-inner p { margin: 0; font-size: 0.92rem; opacity: .92; }
+    .card-body { padding: 1.5rem; }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .scene-title { font-size: 11px; font-weight: 700; color: #aaa; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .75rem; }
+    h2 { font-size: 1.2rem; margin: 0 0 .5rem 0; }
+    p { font-size: .97rem; color: #555; line-height: 1.7; }
+    .emotion-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); gap: 12px; margin-top: 1rem; }
+    .emotion-card { border: 2px solid #eee; border-radius: 16px; background: #fff; padding: 1rem; text-align: center; cursor: pointer; transition: transform .15s ease, border-color .15s ease, background .15s ease; }
+    .emotion-card:hover { transform: translateY(-2px); }
+    .emotion-card.selected { border-color: #1D9E75; background: #EAF3DE; }
+    .emotion-emoji { font-size: 2rem; margin-bottom: .4rem; }
+    .emotion-name { font-weight: 700; font-size: .95rem; color: #333; }
+    .emotion-hint { font-size: .78rem; color: #777; margin-top: .3rem; }
+    .entry-box { border-radius: 16px; padding: 1rem; background: #f8fbf6; border: 2px solid #dfe9dd; margin-top: 1rem; }
+    .label { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #777; margin-bottom: .35rem; }
+    textarea { width: 100%; min-height: 90px; border-radius: 12px; border: 2px solid #ddd; padding: .8rem .9rem; resize: vertical; font-family: inherit; font-size: .95rem; margin-bottom: .85rem; }
+    textarea:focus { outline: none; border-color: #1D9E75; }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 1rem; }
+    .btn { display: inline-block; padding: 10px 22px; border-radius: 999px; border: 2px solid #ddd; background: #fff; color: #333; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; }
+    .btn-primary { background: linear-gradient(135deg,#1D9E75,#27c48f); border-color:#1D9E75; color:#fff; }
+    .entry-list { display: grid; gap: 12px; margin-top: 1rem; }
+    .entry-card { border-radius: 16px; background: #fff; border: 2px solid #eee; padding: 1rem; }
+    .entry-head { display: flex; align-items: center; gap: 10px; margin-bottom: .5rem; }
+    .entry-head .emoji { font-size: 1.6rem; }
+    .entry-head .title { font-weight: 700; color: #333; }
+    .mini { font-size: .88rem; color: #666; margin-top: .35rem; }
+    .highlight-box { border-radius: 14px; padding: .85rem 1rem; font-size: 13px; margin-top: .75rem; line-height: 1.6; border-left: 4px solid; }
+    .hl-blue { background:#E6F1FB; border-color:#378ADD; color:#185FA5; }
+    .hl-green { background:#EAF3DE; border-color:#639922; color:#3B6D11; }
+    .footer { text-align: center; padding: .75rem 1.5rem 1rem; font-size: 11px; color: #bbb; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header-stripe"><div class="hs1"></div><div class="hs2"></div><div class="hs3"></div><div class="hs4"></div><div class="hs5"></div></div>
+    <div class="header-inner">
+      <h1>Diario delle Emozioni</h1>
+      <p>UDA “Empatia in Azione” — Classe 3B, Oriolo Romano — Fase 1</p>
+    </div>
+    <div class="card-body">
+      <div id="s-intro" class="screen active">
+        <div class="scene-title">Strumento TIC della Fase 1</div>
+        <h2>Scegli un’emozione e raccontala</h2>
+        <p>Il diario delle emozioni è uno degli strumenti TIC usati nella <strong>Fase 1</strong> dell’UDA “Empatia in Azione”. Ogni alunno registra un’emozione vissuta, la sua causa e l’azione che ne è seguita.</p>
+        <p>Esattamente così ha lavorato <strong>Francesco</strong> durante la Fase 1 dell’UDA. Riconoscere e nominare le proprie emozioni è il primo passo verso la <strong>Teoria della Mente</strong>.</p>
+        <div class="emotion-grid" id="emotion-grid"></div>
+        <div class="btn-row"><a href="#" class="btn btn-primary" onclick="go('s-entry');return false;">Continua</a></div>
+      </div>
+      <div id="s-entry" class="screen">
+        <div class="scene-title">Compila il diario</div>
+        <h2>Descrivi la tua emozione</h2>
+        <div class="entry-box">
+          <div class="label">Emozione scelta</div>
+          <div id="chosen-emotion" style="font-weight:700;color:#1D9E75;margin-bottom:1rem">Nessuna emozione selezionata</div>
+          <div class="label">Che cosa è successo?</div>
+          <textarea id="causa" placeholder="Scrivi la causa o la situazione che hai vissuto..."></textarea>
+          <div class="label">Che cosa hai fatto dopo?</div>
+          <textarea id="azione" placeholder="Scrivi l’azione o la reazione che ne è seguita..."></textarea>
+        </div>
+        <div class="btn-row">
+          <a href="#" class="btn" onclick="go('s-intro');return false;">Indietro</a>
+          <a href="#" class="btn btn-primary" onclick="salvaVoce();return false;">Salva nel diario</a>
+        </div>
+      </div>
+      <div id="s-risultati" class="screen">
+        <div class="scene-title">Le voci del diario</div>
+        <h2>Il tuo diario delle emozioni</h2>
+        <p>Queste sono le voci registrate nel diario. Ogni emozione è collegata a una causa e a un’azione, così diventa osservabile e riflettuta.</p>
+        <div class="entry-list" id="entry-list"></div>
+        <div class="highlight-box hl-green"><strong>Osservazione didattica:</strong> il diario funziona come facilitatore concreto e rende visibile il legame tra emozione, evento e comportamento.</div>
+        <div class="highlight-box hl-blue">In prospettiva ICF, l’attività sostiene l’espressione personale e la partecipazione, riducendo la barriera della produzione scritta e valorizzando la narrazione.</div>
+        <div class="btn-row"><a href="#" class="btn" onclick="go('s-entry');return false;">Aggiungi un’altra voce</a><a href="#" class="btn btn-primary" onclick="resetDiary();return false;">Ricomincia</a></div>
+      </div>
+    </div>
+    <div class="footer">Federica Fiaschetti — TFA Sostegno X Ciclo, a.a. 2024/2025</div>
+  </div>
+  <script>
+    const emotions = [
+      { name: 'Gioia', emoji: '😊', hint: 'Quando qualcosa ti ha fatto stare bene' },
+      { name: 'Tristezza', emoji: '😢', hint: 'Quando qualcosa ti ha fatto stare male' },
+      { name: 'Rabbia', emoji: '😠', hint: 'Quando hai provato fastidio o ingiustizia' },
+      { name: 'Paura', emoji: '😨', hint: 'Quando ti sei sentito insicuro' },
+      { name: 'Vergogna', emoji: '😳', hint: 'Quando ti sei sentito esposto o a disagio' },
+      { name: 'Orgoglio', emoji: '🌟', hint: 'Quando eri soddisfatto di te' }
+    ];
+    let selectedEmotion = null;
+    let entries = [
+      { emotion: 'Gioia', emoji: '😊', causa: 'Ho lavorato bene con un compagno e siamo riusciti a finire il cartellone.', azione: 'Ho sorriso, ho continuato a collaborare e mi sono sentito capace.' },
+      { emotion: 'Rabbia', emoji: '😠', causa: 'Un compagno mi ha interrotto mentre parlavo.', azione: 'All’inizio mi sono chiuso, poi ne ho parlato con l’insegnante.' },
+      { emotion: 'Orgoglio', emoji: '🌟', causa: 'Sono riuscito a spiegare una mia idea davanti alla classe.', azione: 'Ho parlato con più sicurezza e ho partecipato di più.' }
+    ];
+    function go(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); if(id==='s-risultati') renderEntries(); window.scrollTo({top:0, behavior:'smooth'}); }
+    function renderEmotions(){ document.getElementById('emotion-grid').innerHTML = emotions.map((e,i)=>`<div class="emotion-card ${selectedEmotion===i?'selected':''}" onclick="selectEmotion(${i})"><div class="emotion-emoji">${e.emoji}</div><div class="emotion-name">${e.name}</div><div class="emotion-hint">${e.hint}</div></div>`).join(''); }
+    function selectEmotion(i){ selectedEmotion = i; renderEmotions(); document.getElementById('chosen-emotion').textContent = `${emotions[i].emoji} ${emotions[i].name}`; }
+    function salvaVoce(){ if(selectedEmotion===null){ alert('Seleziona prima un’emozione.'); go('s-intro'); return; } const causa = document.getElementById('causa').value.trim(); const azione = document.getElementById('azione').value.trim(); if(!causa || !azione){ alert('Compila sia la causa sia l’azione.'); return; } entries.push({ emotion: emotions[selectedEmotion].name, emoji: emotions[selectedEmotion].emoji, causa, azione }); document.getElementById('causa').value=''; document.getElementById('azione').value=''; go('s-risultati'); }
+    function renderEntries(){ document.getElementById('entry-list').innerHTML = entries.map(e=>`<div class="entry-card"><div class="entry-head"><div class="emoji">${e.emoji}</div><div class="title">${e.emotion}</div></div><div class="mini"><strong>Causa:</strong> ${e.causa}</div><div class="mini"><strong>Azione:</strong> ${e.azione}</div></div>`).join(''); }
+    function resetDiary(){ selectedEmotion = null; document.getElementById('causa').value=''; document.getElementById('azione').value=''; entries = []; renderEmotions(); go('s-intro'); }
+    window.addEventListener('DOMContentLoaded', ()=>{ renderEmotions(); renderEntries(); });
+  </script>
+</body>
+</html>
